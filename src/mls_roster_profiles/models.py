@@ -2,7 +2,9 @@ import datetime
 import re
 from typing import Annotated
 
+from itscalledsoccer.client import AmericanSoccerAnalysis
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from rapidfuzz import fuzz, process, utils
 
 from mls_roster_profiles.enum import CurrentStatus, RosterConstructionModel, RosterDesignation, RosterSlot
 
@@ -123,6 +125,27 @@ class RosterProfile(BaseModel):
     small_tables: list[SmallTable] = Field(default_factory=list, validation_alias="small_table")
     large_tables: list[LargeTable] = Field(default_factory=list, validation_alias="large_table")
 
+    def _resolve_id(self) -> tuple[str | None, str]:
+        asa_client = AmericanSoccerAnalysis()
+        mls_teams = asa_client.get_teams(leagues="mls")
+        mls_teams_lookup = {row["team_name"]: row["team_id"] for _, row in mls_teams.iterrows()}
+
+        matches = process.extract(
+            self.team_name,
+            mls_teams_lookup.keys(),
+            scorer=fuzz.WRatio,
+            limit=2,
+            score_cutoff=86,
+            processor=utils.default_process,
+        )
+
+        if len(matches) == 1:
+            return mls_teams_lookup[matches[0][0]], matches[0][0]
+
+        # TODO: Handle case where no matches or multiple matches are found
+
+        return None, self.team_name
+
     def _get_international_slots(self) -> int | None:
         for table in self.small_tables:
             if table.title.lower().startswith("international"):
@@ -188,11 +211,13 @@ class RosterProfile(BaseModel):
         return players
 
     def to_team(self) -> Team:
+        id_, name = self._resolve_id()
         international_slots = self._get_international_slots()
         players = self._get_players()
 
         return Team(
-            name=self.team_name,
+            id_=id_,
+            name=name,
             roster_construction_model=self.roster_construction_model,
             international_slots=international_slots,
             gam_available=self.gam_available,
