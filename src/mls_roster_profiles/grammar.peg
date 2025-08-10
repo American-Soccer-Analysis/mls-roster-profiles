@@ -1,0 +1,136 @@
+# Root
+root =
+    team_object
+    table_object+
+    gam_object?
+    table_object*
+    notes_object?
+
+
+# Team
+team_object =
+    team_name_object
+    release_date_object           # Smaller, "as of" parenthetical
+    roster_construction_object?   # Only relevant starting Fall 2024
+
+team_name_object =
+    team_name
+    (attr_regular team_name attr_regular)*
+    "| ROSTER PROFILE" attr_regular
+team_name = ~r"[\p{Lu}\. ]+"
+
+release_date_object = "(as of " release_date ")" attr_regular
+release_date = not_parentheses+
+
+roster_construction_object = "Roster Construction Model: " roster_construction_model attr_regular
+roster_construction_model = character+
+
+
+# Tables
+table_object = small_table / large_table
+
+## Small
+small_table =
+    table_label
+    small_table_thead
+    small_table_row+
+
+small_table_thead = table_header{2}
+small_table_row = number_record name_record?
+
+number_record = digit+ attr_regular
+name_record = player_name attr_regular
+
+## Large
+large_table =
+    table_label
+    large_table_thead?
+    large_table_row+
+
+large_table_thead = table_header{5}
+large_table_row =
+    player_name_record
+    roster_designation_record{0,2}
+    current_status_record?
+    contract_through_record?
+    option_years_record{0,2}
+
+player_name_record = player_name attr_player_name
+attr_player_name = attr_open &"2" coordinates regular attr_close end_object
+
+roster_designation_record = roster_designation attr_roster_designation
+roster_designation = character+
+attr_roster_designation = attr_open &"3" coordinates regular attr_close end_object
+
+current_status_record = current_status attr_current_status
+current_status = character+
+attr_current_status = attr_open digit+ separator &"5" digit+ separator digit+ separator regular attr_close end_object
+
+contract_through_record = contract_through attr_contract_through
+contract_through = character+
+attr_contract_through = attr_open (&"6" / &"7") coordinates regular attr_close end_object
+
+option_years_record = option_years attr_option_years
+option_years = character+
+attr_option_years = attr_open (&"7" / &"8") coordinates regular attr_close end_object
+
+## Common
+table_label = table_title attr_bold
+table_title = character+
+table_header = bold_object{1}
+
+player_name = character+
+
+
+# Notes
+notes_object = "NOTES" attr_bold list_item+
+list_item =
+    "•" attr_regular
+    (!"•" character+ attr_regular)+
+
+
+# GAM
+gam_object =
+    gam_label_object
+    gam_available_object
+
+gam_label_object = bold_object{1}
+
+gam_available_object = "$" gam_available attr_bold
+gam_available = (digit{1,3} comma)* digit{1,3}
+
+
+# Miscellaneous
+bold_object = character+ attr_bold
+
+attr_regular = attr_open coordinates regular attr_close end_object
+attr_bold = attr_open coordinates bold attr_close end_object
+
+coordinates = digit+ separator digit+ separator digit+ separator
+
+
+# Font weights
+light = "light"
+regular = "regular"
+bold = "bold"
+
+character = ~r"[^\n⇥⇤↩《》]"
+not_parentheses = ~r"[^\(\)\n]"
+
+
+# Delimiters
+end_object = "\n"
+tab = "⇥"
+precedes = "⇤"
+return = "↩"
+attr_open = "《"
+attr_close = "》"
+
+
+# All-purpose
+digit = ~r"[0-9]"
+comma = ","
+dot = "."
+slash = "/"
+space = ~r"[\s\t]"
+separator = "|"

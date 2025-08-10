@@ -1,0 +1,48 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.222.0/containers/python-3-miniconda
+{
+  "name": "${localWorkspaceFolderBasename}",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "features": {
+    "ghcr.io/devcontainers-extra/features/poetry:2": {}
+  },
+  "remoteEnv": {
+    "WORKSPACE": "${containerWorkspaceFolder}"
+  },
+  "postCreateCommand": [
+    "/bin/sh",
+    "-c",
+    "/bin/sh ./.devcontainer/postCreateCommand.sh"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "ms-toolsai.jupyter",
+        "ms-vscode.makefile-tools",
+        "tamasfe.even-better-toml",
+        "editorconfig.editorconfig",
+        "github.vscode-pull-request-github",
+        "njpwerner.autodocstring",
+        "ryanluker.vscode-coverage-gutters"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "[json]": {
+          "editor.defaultFormatter": "vscode.json-language-features"
+        },
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff"
+        },
+        "python.defaultInterpreterPath": "/workspaces/${localWorkspaceFolderBasename}/.venv/bin/python",
+        "python.terminal.activateEnvInCurrentTerminal": true,
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestPath": "/workspaces/${localWorkspaceFolderBasename}/.venv/bin/pytest",
+        "python.testing.pytestArgs": ["tests"]
+      }
+    }
+  }
+}
