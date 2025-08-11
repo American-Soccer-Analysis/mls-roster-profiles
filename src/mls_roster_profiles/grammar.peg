@@ -49,7 +49,7 @@ large_table =
 
 large_table_thead = table_header{5}
 large_table_row =
-    player_name_record
+    player_name_record{1,2}
     roster_designation_record{0,2}
     current_status_record?
     contract_through_record?
@@ -75,7 +75,7 @@ option_years = character+
 attr_option_years = attr_open (&"7" / &"8") coordinates regular attr_close end_object
 
 ## Common
-table_label = table_title attr_bold
+table_label = !"NOTES" table_title attr_bold
 table_title = character+
 table_header = bold_object{1}
 

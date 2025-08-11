@@ -1,12 +1,17 @@
+import re
 from enum import StrEnum
 
 
 class StrEnumCaseInsensitive(StrEnum):
+    @staticmethod
+    def _process_value(value: str) -> str:
+        return re.sub(r"–|-|\s", "", value.lower())  # noqa: RUF001
+
     @classmethod
     def _missing_(cls, value: str):
-        lower_value = value.lower().replace("–", "-")  # noqa: RUF001
+        lower_value = cls._process_value(value)
         for member in cls:
-            if member.value.lower().replace("–", "-") == lower_value:  # noqa: RUF001
+            if cls._process_value(member.value) == lower_value:
                 return member
         return None
 
@@ -29,7 +34,8 @@ class RosterDesignation(StrEnumCaseInsensitive):
     U22 = "U22 Initiative"
     HOMEGROWN = "Homegrown Player"
     GENERATION_ADIDAS = "Generation adidas"
-    PROFESSIONAL_DEVELOPMENT = "Player Professional Development Role"
+    PROFESSIONAL_DEVELOPMENT = "Professional Player Development Role"
+    SPECIAL_DISCOVERY = "Special Discovery Player"
 
 
 class CurrentStatus(StrEnumCaseInsensitive):
@@ -39,6 +45,7 @@ class CurrentStatus(StrEnumCaseInsensitive):
     SEI = "Unavailable - SEI"
     P1_ITC = "Unavailable - P1/ITC"
     UNAVAILABLE_OTHER = "Unavailable - Other"
+    UNAVAILABLE_UNSPECIFIED = "Unavailable"
     OFF_BUDGET = "Off-Budget"
     LOAN_PLAYER = "Loan Player"
     INJURED = "Unavailable - Injured List"

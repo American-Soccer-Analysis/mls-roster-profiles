@@ -353,6 +353,9 @@ class TextObject(BaseModel):
         if self.font is None or self.bounding_box is None:
             raise ValueError("Font and bounding box must be set before serialization.")  # noqa: TRY003
 
+        if self.content == "-":
+            return ""
+
         content = self.content
         x_coordinates = [self.bounding_box.x_min, self.bounding_box.x_center, self.bounding_box.x_max]
         font_weight = self.font.weight

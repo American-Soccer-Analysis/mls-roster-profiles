@@ -165,7 +165,7 @@ class RosterProfileRelease(BaseModel):
                     entity.name = labeled["Name"]
                     return entity
 
-        logger.warning(f"Could not resolve {entity_type} '{entity.name}'")
+        logger.warning(f"No mapping identified for {entity_type} '{entity.name}'")
         return entity
 
     @staticmethod

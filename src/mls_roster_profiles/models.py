@@ -2,7 +2,8 @@ import datetime
 import re
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from loguru import logger
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
 from mls_roster_profiles.enum import CurrentStatus, RosterConstructionModel, RosterDesignation, RosterSlot
 
@@ -23,11 +24,11 @@ class Player(BaseModel):
         default=...,
         description="Roster slot of the player, such as Senior Roster or Supplemental Roster.",
     )
-    roster_designation: RosterDesignation | None = Field(
+    roster_designation: RosterDesignation | str | None = Field(
         default=None,
         description="Roster designation of the player, such as Designated Player or Homegrown Player.",
     )
-    current_status: CurrentStatus | None = Field(
+    current_status: CurrentStatus | str | None = Field(
         default=None,
         description="Current status of the player, such as On Loan or Injured List.",
     )
@@ -60,6 +61,28 @@ class Player(BaseModel):
         description="Indicates whether the player does not count toward an international roster slot. Each Canadian club may designate up to three players.",
     )
 
+    @field_validator("roster_designation", mode="before")
+    @classmethod
+    def validate_roster_designation(cls, value: str | None) -> RosterDesignation | str | None:
+        if value:
+            try:
+                return RosterDesignation(value)
+            except ValueError:
+                logger.warning(f"Unrecognized roster designation: '{value}'. Returning as string.")
+                return value
+        return None
+
+    @field_validator("current_status", mode="before")
+    @classmethod
+    def validate_current_status(cls, value: str | None) -> CurrentStatus | None:
+        if value:
+            try:
+                return CurrentStatus(value)
+            except ValueError:
+                logger.warning(f"Unrecognized current status: '{value}'. Returning as string.")
+                return value
+        return None
+
 
 class Team(BaseModel):
     model_config = ConfigDict(serialize_by_alias=True)
@@ -73,8 +96,8 @@ class Team(BaseModel):
         default=...,
         description="Full name of the team.",
     )
-    roster_construction_model: RosterConstructionModel = Field(
-        default=...,
+    roster_construction_model: RosterConstructionModel | None = Field(
+        default=None,
         description="Roster construction model of the team, such as Designated Player Model or U22 Initiative Player Model.",
     )
     players: list[Player] = Field(
