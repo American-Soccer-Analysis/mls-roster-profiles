@@ -39,8 +39,8 @@ class Player(BaseModel):
         default=None,
         description="List of option years for the player's contract. Most often a year (e.g., '2025'), but can also be a month (e.g., 'July 2025').",
     )
-    permanent_transfer_option: bool = Field(
-        default=False,
+    permanent_transfer_option: bool | None = Field(
+        default=None,
         description="Indicates whether the loan player's contract has a permanent transfer option.",
     )
     international_slot: bool = Field(
@@ -166,6 +166,11 @@ class RosterProfile(BaseModel):
         player = self._enrich_international_slot(player)
         player = self._enrich_designated_player(player)
         player = self._enrich_unavailable(player)
+
+        player.permanent_transfer_option = (
+            player.permanent_transfer_option if player.current_status == CurrentStatus.LOAN_PLAYER else None
+        )
+
         return player
 
     def _get_players(self) -> list[Player]:
