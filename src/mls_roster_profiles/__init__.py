@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime
 import importlib.resources
+import re
 import sys
 from pathlib import Path
 
@@ -16,21 +17,44 @@ from rapidfuzz import fuzz, process, utils
 from mls_roster_profiles.models import Player, RosterProfile, Team
 from mls_roster_profiles.parsimonious.grammar import Grammar
 from mls_roster_profiles.parsimonious.nodes import NodeVisitor
+from mls_roster_profiles.pypdf.enum import DelimiterGlyph
 from mls_roster_profiles.pypdf.reader import Page
 
 __all__ = ["RosterProfileRelease"]
 
 
 class RosterProfileVisitor(NodeVisitor):
+    """Visitor class for serializing a parsed roster profile."""
+
     model_class: RosterProfile = RosterProfile
 
     def serialize(self, tree: Node) -> tuple[Team, datetime.date]:
+        """
+        Serializes the parsed roster profile into a tuple of `Team` and release date.
+
+        Args:
+            tree (Node): The parsed roster profile node.
+
+        Returns:
+            tuple[Team, datetime.date]: The serialized team and release date.
+
+        """
         result = self.visit(tree)
         roster_profile = self.model_class.model_validate(result)
         return roster_profile.to_team(), roster_profile.release_date
 
 
 class RosterProfileRelease(BaseModel):
+    """
+    Represents the release of a roster profile, including the release date and
+    associated teams.
+
+    Attributes:
+        release_date (datetime.date): Release date of the roster profiles.
+        teams (list[Team]): List of teams with their roster profiles.
+
+    """
+
     release_date: datetime.date = Field(
         default=...,
         description="Release date of the roster profiles.",
@@ -41,7 +65,31 @@ class RosterProfileRelease(BaseModel):
     )
 
     @staticmethod
+    def _postprocess_text(text: str) -> str:
+        """
+        Post-processes the extracted text by applying necessary transformations.
+
+        Args:
+            text (str): The extracted text to post-process.
+
+        Returns:
+            str: The post-processed text.
+
+        """
+        return re.sub(rf"-{DelimiterGlyph.ATTRIBUTES_OPEN}.*{DelimiterGlyph.ATTRIBUTES_CLOSE}\n", "", text)
+
+    @staticmethod
     def _itscalledsoccer_teams(client: AmericanSoccerAnalysis) -> list[dict[str, str]]:
+        """
+        Fetches Major League Soccer teams from `itscalledsoccer`.
+
+        Args:
+            client (AmericanSoccerAnalysis): The `itscalledsoccer` client instance.
+
+        Returns:
+            list[dict[str, str]]: A list of dictionaries representing the teams.
+
+        """
         teams = client.get_teams(leagues="mls")
 
         teams = teams[["team_id", "team_name"]]
@@ -51,6 +99,16 @@ class RosterProfileRelease(BaseModel):
 
     @staticmethod
     def _itscalledsoccer_players(client: AmericanSoccerAnalysis) -> list[dict[str, str]]:
+        """
+        Fetches Major League Soccer players from `itscalledsoccer`.
+
+        Args:
+            client (AmericanSoccerAnalysis): The `itscalledsoccer` client instance.
+
+        Returns:
+            list[dict[str, str]]: A list of dictionaries representing the players.
+
+        """
         teams = client.get_teams(leagues=["mls", "mlsnp"])
         teams = teams[["team_id", "team_name"]]
 
@@ -92,6 +150,19 @@ class RosterProfileRelease(BaseModel):
         from_roster_profile: dict[str, str],
         from_itscalledsoccer: dict[str, str],
     ) -> dict[str, str] | None:
+        """
+        Prompts the user to confirm whether the two entities provided are the same. Used
+        when multiple possible matches are found for a team or player.
+
+        Args:
+            entity_type (str): The type of entity being compared (e.g., "team" or "player").
+            from_roster_profile (dict[str, str]): The roster profile data for the entity.
+            from_itscalledsoccer (dict[str, str]): The `itscalledsoccer` data for the entity.
+
+        Returns:
+            dict[str, str] | None: The confirmed entity data if the user agrees, otherwise None.
+
+        """
         user_input = ""
 
         print(file=sys.stderr)
@@ -127,6 +198,20 @@ class RosterProfileRelease(BaseModel):
         score_cutoff: int,
         team_name: str | None = None,
     ) -> Team | Player:
+        """
+        Maps a team or player entity to its corresponding ID in the `itscalledsoccer`
+        dataset.
+
+        Args:
+            entity (Team | Player): The team or player entity to map.
+            choices (list[dict[str, str]]): The list of possible matches from `itscalledsoccer`.
+            score_cutoff (int): The minimum score required to consider a match valid.
+            team_name (str | None): The name of the team to which the player belongs, where applicable.
+
+        Returns:
+            Team | Player: The updated entity with the mapped ID, or the original entity if no match is found.
+
+        """
         if isinstance(entity, Team):
             entity_type = "team"
             from_roster_profile = {"Name": entity.name}
@@ -170,6 +255,17 @@ class RosterProfileRelease(BaseModel):
 
     @staticmethod
     def _map_ids(teams: list[Team]) -> list[Team]:
+        """
+        Maps all team and player entities to their corresponding IDs in the
+        `itscalledsoccer` dataset.
+
+        Args:
+            teams (list[Team]): The list of teams to map.
+
+        Returns:
+            list[Team]: The updated list of teams with mapped IDs.
+
+        """
         logger.info("Mapping team and player names to their IDs, retrieving data from `itscalledsoccer`...")
 
         asa_client = AmericanSoccerAnalysis()
@@ -201,6 +297,25 @@ class RosterProfileRelease(BaseModel):
 
     @classmethod
     def from_pdf(cls, stream: str | bytes | Path) -> RosterProfileRelease:
+        """
+        Parses a PDF document, extracts the enclosed roster profiles, and returns a
+        JSON-like structure.
+
+        Attempts to map player and team names to their corresponding IDs in the `itscalledsoccer` dataset,
+        doing so automatically when there is a single evident match, and prompting the user for confirmation
+        when there are multiple potential matches.
+
+        Produces warning messages when certain extracted values do not belong to a set of expected values,
+        as well as when a player or team cannot be confidently mapped to an ID, highlighting sections of
+        the output which may require manual review.
+
+        Args:
+            stream (str | bytes | Path): The PDF document to parse.
+
+        Returns:
+            RosterProfileRelease: The parsed roster profile release.
+
+        """
         pdf = PdfReader(stream)
 
         rules = importlib.resources.files(__package__).joinpath("grammar.peg")
@@ -214,6 +329,7 @@ class RosterProfileRelease(BaseModel):
         for idx, _page in enumerate(pdf.pages):
             page = Page(pdf, _page)
             text = page.extract_text()
+            text = cls._postprocess_text(text)
 
             if "SENIOR ROSTER" in text:
                 tree = grammar.parse(text)

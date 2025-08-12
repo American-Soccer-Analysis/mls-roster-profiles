@@ -36,6 +36,9 @@ attr_close = "{DelimiterGlyph.ATTRIBUTES_CLOSE}"
 
 
 class Grammar(ParsimoniousGrammar):
+    """Subclass of `parsimonious.Grammar` which takes a file path to a PEG grammar file
+    as its input and appends delimiter variables from the `pypdf` module."""
+
     def __init__(self, rules: Path) -> None:
         with open(rules) as f:
             rules_content = f.read()

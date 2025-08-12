@@ -3,6 +3,8 @@ from enum import StrEnum
 
 
 class StrEnumCaseInsensitive(StrEnum):
+    """A case-, space-, and hyphen-insensitive string enumeration."""
+
     @staticmethod
     def _process_value(value: str) -> str:
         return re.sub(r"–|-|\s", "", value.lower())  # noqa: RUF001
