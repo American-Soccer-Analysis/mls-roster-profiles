@@ -2,16 +2,16 @@
 root =
     team_object
     table_object+
-    gam_object?
-    table_object*
-    notes_object?
+    gam_object?        # NOTE: Only relevant starting in 2025
+    table_object*      # NOTE: One of the larger tables is occasionally ordered after the GAM object
+    notes_object?      # NOTE: Only relevant in Spring 2024 release
 
 
 # Team
 team_object =
     team_name_object
-    release_date_object           # Smaller, "as of" parenthetical
-    roster_construction_object?   # Only relevant starting Fall 2024
+    release_date_object
+    roster_construction_object?   # NOTE: Only relevant starting Fall 2024
 
 team_name_object =
     team_name
@@ -75,7 +75,7 @@ option_years = character+
 attr_option_years = attr_open (&"7" / &"8") coordinates regular attr_close end_object
 
 ## Common
-table_label = !"NOTES" table_title attr_bold
+table_label = !notes_label table_title attr_bold
 table_title = character+
 table_header = bold_object{1}
 
@@ -83,10 +83,12 @@ player_name = character+
 
 
 # Notes
-notes_object = "NOTES" attr_bold list_item+
+notes_object = notes_label attr_bold list_item+
+notes_label = "NOTES"
+
 list_item =
-    "•" attr_regular
-    (!"•" character+ attr_regular)+
+    bullet attr_regular
+    (!bullet character+ attr_regular)+
 
 
 # GAM
@@ -101,36 +103,9 @@ gam_available = (digit{1,3} comma)* digit{1,3}
 
 
 # Miscellaneous
+## Objects
 bold_object = character+ attr_bold
 
-attr_regular = attr_open coordinates regular attr_close end_object
-attr_bold = attr_open coordinates bold attr_close end_object
-
-coordinates = digit+ separator digit+ separator digit+ separator
-
-
-# Font weights
-light = "light"
-regular = "regular"
-bold = "bold"
-
-character = ~r"[^\n⇥⇤↩《》]"
+## Characters
 not_parentheses = ~r"[^\(\)\n]"
-
-
-# Delimiters
-end_object = "\n"
-tab = "⇥"
-precedes = "⇤"
-return = "↩"
-attr_open = "《"
-attr_close = "》"
-
-
-# All-purpose
-digit = ~r"[0-9]"
-comma = ","
-dot = "."
-slash = "/"
-space = ~r"[\s\t]"
-separator = "|"
+bullet = "•"

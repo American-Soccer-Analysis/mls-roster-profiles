@@ -8,14 +8,14 @@ from pathlib import Path
 import pandas as pd
 from itscalledsoccer.client import AmericanSoccerAnalysis
 from loguru import logger
-from parsimonious import Grammar
 from parsimonious.nodes import Node
 from pydantic import BaseModel, Field
 from pypdf import PdfReader
 from rapidfuzz import fuzz, process, utils
 
 from mls_roster_profiles.models import Player, RosterProfile, Team
-from mls_roster_profiles.parsimonious import NodeVisitor
+from mls_roster_profiles.parsimonious.grammar import Grammar
+from mls_roster_profiles.parsimonious.nodes import NodeVisitor
 from mls_roster_profiles.pypdf.reader import Page
 
 __all__ = ["RosterProfileRelease"]
@@ -203,9 +203,8 @@ class RosterProfileRelease(BaseModel):
     def from_pdf(cls, stream: str | bytes | Path) -> RosterProfileRelease:
         pdf = PdfReader(stream)
 
-        grammar_path = importlib.resources.files(__package__).joinpath("grammar.peg")
-        with open(grammar_path) as f:
-            grammar = Grammar(f.read())
+        rules = importlib.resources.files(__package__).joinpath("grammar.peg")
+        grammar = Grammar(rules)
 
         teams = []
         release_date = None
