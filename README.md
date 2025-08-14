@@ -73,3 +73,15 @@ print(release.model_dump_json(indent=2))
   ...
 }
 ```
+
+## Development
+
+Setting up a development environment requires the following dependencies:
+
+1. [Docker](https://www.docker.com/)
+2. [Visual Studio Code](https://code.visualstudio.com/)
+3. [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+
+Ensure Docker is running on your machine, and then open the repository folder in Visual Studio Code. You should be prompted to reopen the folder in a container. Click the button to accept. This will configure the development container with all necessary dependencies.
+
+_Note: If you do not receive this prompt, or if the prompt disappears before you are able to click the button, you can instead select the `Dev Containers: Reopen in Container` command from the Command Palette._
