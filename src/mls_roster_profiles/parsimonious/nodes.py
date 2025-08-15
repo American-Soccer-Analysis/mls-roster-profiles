@@ -33,8 +33,6 @@ class NodeVisitor(ParsimoniousNodeVisitor):
     reaching all terminal nodes and then continues onto the next attribute. These structures are
     accordingly represented as dictionaries reflecting all nested attributes.
 
-    Support for simple lists is not yet implemented.
-
     It is expected that all the field names in the Pydantic model are unique and exactly
     match the respective named variables in the grammar. Where applicable, the field's
     `validation_alias` or `alias` is used in this regard. In this same context, any nested
@@ -120,8 +118,7 @@ class NodeVisitor(ParsimoniousNodeVisitor):
                 self._create_visitors(field_type)
 
             elif self._is_list(field_type):
-                # TODO: Check that there's a user-defined visitor; if not, raise error
-                pass
+                self._add_list_visitor(field_name, field_type)
 
             else:
                 logger.warning(f"Unsupported type for field `{field_name}`: {field_type}")
@@ -326,6 +323,28 @@ class NodeVisitor(ParsimoniousNodeVisitor):
             return {field_name: int(text.replace(",", ""))}
 
         setattr(cls, f"visit_{field_name}", _visitor)
+
+    @classmethod
+    def _add_list_visitor(cls, field_name: str, field_type: type) -> None:
+        """
+        Add a visitor method for simple list fields in the Pydantic model.
+
+        This method creates a visitor based on the type of the list's items.
+        Only supports lists of a single type, where the type is a string, date, or integer.
+
+        Args:
+            field_name (str): The name of the field in the Pydantic model.
+            field_type (type): The type of the field in the Pydantic model.
+
+        """
+
+        child_type = get_args(field_type)[0]
+        if cls._is_str(child_type):
+            cls._add_str_visitor(field_name)
+        elif cls._is_date(child_type):
+            cls._add_date_visitor(field_name)
+        elif cls._is_int(child_type):
+            cls._add_int_visitor(field_name)
 
     @staticmethod
     def _get_list_fields(model_class: BaseModel) -> list[str]:
