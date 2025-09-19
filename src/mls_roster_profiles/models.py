@@ -128,7 +128,7 @@ class Team(BaseModel):
         default=...,
         description="Full name of the team.",
     )
-    roster_construction_model: RosterConstructionModel | None = Field(
+    roster_construction_model: RosterConstructionModel | str | None = Field(
         default=None,
         description="Roster construction model of the team, such as Designated Player Model or U22 Initiative Player Model.",
     )
@@ -144,6 +144,17 @@ class Team(BaseModel):
         default=None,
         description="Amount of this season's General Allocation Money (GAM) presently available to the team.",
     )
+
+    @field_validator("roster_construction_model", mode="before")
+    @classmethod
+    def validate_roster_construction_model(cls, value: str | None) -> RosterConstructionModel | str | None:
+        if value:
+            try:
+                return RosterConstructionModel(value)
+            except ValueError:
+                logger.warning(f"Unrecognized roster construction model: '{value}'. Returning as string.")
+                return value
+        return None
 
 
 class TableTitleMixin(BaseModel):
