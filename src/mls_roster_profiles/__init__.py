@@ -283,6 +283,7 @@ class RosterProfileRelease(BaseModel):
                 score_cutoff=86,
             )
 
+            players = []
             for player in team.players:
                 player = RosterProfileRelease._map_id(
                     entity=player,
@@ -290,6 +291,13 @@ class RosterProfileRelease(BaseModel):
                     score_cutoff=75,
                     team_name=team.name,
                 )
+
+                if player.id_ and sum(p.id_ == player.id_ for p in team.players) > 1:
+                    logger.warning(f"[{team.name}] {player.name} appears multiple times, removing duplicate entry")
+                else:
+                    players.append(player)
+
+            team.players = players
 
         logger.info("Finished mapping team and player names to their IDs")
 

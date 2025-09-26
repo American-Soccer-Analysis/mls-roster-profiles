@@ -428,7 +428,7 @@
         }
       ],
       "international_slots": 7,
-      "gam_available": null
+      "gam_available": 136967
     },
     {
       "id": "gpMOLwl5zy",
@@ -801,7 +801,7 @@
         }
       ],
       "international_slots": 8,
-      "gam_available": null
+      "gam_available": 44636
     },
     {
       "id": "NPqxKXZ59d",
@@ -1258,7 +1258,7 @@
         }
       ],
       "international_slots": 9,
-      "gam_available": null
+      "gam_available": 1742951
     },
     {
       "id": "X0Oq66zq6D",
@@ -1743,7 +1743,7 @@
         }
       ],
       "international_slots": 10,
-      "gam_available": null
+      "gam_available": 11689
     },
     {
       "id": "NWMWlBK5lz",
@@ -2172,7 +2172,7 @@
         }
       ],
       "international_slots": 9,
-      "gam_available": null
+      "gam_available": 0
     },
     {
       "id": "pzeQZ6xQKw",
@@ -2615,7 +2615,7 @@
         }
       ],
       "international_slots": 4,
-      "gam_available": null
+      "gam_available": 2033775
     },
     {
       "id": "mvzqoLZQap",
@@ -3016,7 +3016,7 @@
         }
       ],
       "international_slots": 8,
-      "gam_available": null
+      "gam_available": 1990355
     },
     {
       "id": "mKAqBBmqbg",
@@ -3239,48 +3239,6 @@
           "roster_slot": "Senior Roster",
           "roster_designation": null,
           "current_status": "Unavailable - On Loan",
-          "contract_through": "2026",
-          "option_years": "2027, 2028",
-          "permanent_transfer_option": null,
-          "international_slot": false,
-          "convertible_with_tam": null,
-          "unavailable": true,
-          "canadian_international_slot_exemption": null
-        },
-        {
-          "id": "0Oq6woOxQ6",
-          "name": "Maarten Paes",
-          "roster_slot": "Senior Roster",
-          "roster_designation": null,
-          "current_status": null,
-          "contract_through": "2026",
-          "option_years": "2027, 2028",
-          "permanent_transfer_option": null,
-          "international_slot": false,
-          "convertible_with_tam": null,
-          "unavailable": false,
-          "canadian_international_slot_exemption": null
-        },
-        {
-          "id": "KAqBjgDAqb",
-          "name": "Ramiro",
-          "roster_slot": "Senior Roster",
-          "roster_designation": null,
-          "current_status": null,
-          "contract_through": "2026",
-          "option_years": "2027",
-          "permanent_transfer_option": null,
-          "international_slot": true,
-          "convertible_with_tam": null,
-          "unavailable": false,
-          "canadian_international_slot_exemption": null
-        },
-        {
-          "id": "gOMnYzdxQw",
-          "name": "Tsiki Ntsabeleng",
-          "roster_slot": "Senior Roster",
-          "roster_designation": null,
-          "current_status": null,
           "contract_through": "2026",
           "option_years": "2027, 2028",
           "permanent_transfer_option": null,
@@ -3585,7 +3543,7 @@
         }
       ],
       "international_slots": 9,
-      "gam_available": null
+      "gam_available": 1140345
     },
     {
       "id": "EKXMeX3Q64",
@@ -3986,7 +3944,7 @@
         }
       ],
       "international_slots": 6,
-      "gam_available": null
+      "gam_available": 718569
     },
     {
       "id": "YgOMngl5wN",
@@ -4120,8 +4078,8 @@
           "canadian_international_slot_exemption": null
         },
         {
-          "id": "9YqdW64k5v",
-          "name": "Dija",
+          "id": "7VqGjRDY5v",
+          "name": "Diadie Samassékou",
           "roster_slot": "Senior Roster",
           "roster_designation": "TAM Player",
           "current_status": null,
@@ -4485,7 +4443,7 @@
         }
       ],
       "international_slots": 8,
-      "gam_available": null
+      "gam_available": 2931725
     },
     {
       "id": "Z2vQ1xlqrA",
@@ -4844,7 +4802,7 @@
         }
       ],
       "international_slots": 7,
-      "gam_available": null
+      "gam_available": 1010415
     },
     {
       "id": "kaDQ0wRqEv",
@@ -5259,7 +5217,7 @@
         }
       ],
       "international_slots": 11,
-      "gam_available": null
+      "gam_available": 120580
     },
     {
       "id": "eVq3ya6MWO",
@@ -5716,7 +5674,7 @@
         }
       ],
       "international_slots": 11,
-      "gam_available": null
+      "gam_available": 2000577
     },
     {
       "id": "zeQZkL1MKw",
@@ -5794,8 +5752,8 @@
           "canadian_international_slot_exemption": null
         },
         {
-          "id": "4JMAkyRkqK",
-          "name": "Mateo Turletti",
+          "id": "eVq3rBnV5W",
+          "name": "Mateo Silvetti",
           "roster_slot": "Senior Roster",
           "roster_designation": "U22 Initiative",
           "current_status": null,
@@ -6103,7 +6061,7 @@
         }
       ],
       "international_slots": 15,
-      "gam_available": null
+      "gam_available": 2135713
     },
     {
       "id": "kRQand1MKZ",
@@ -6433,8 +6391,8 @@
           "canadian_international_slot_exemption": null
         },
         {
-          "id": "9YqdYLL9Qv",
-          "name": "Ronald Alexis Cerritos",
+          "id": "XVqK299a50",
+          "name": "Alexis Fariña",
           "roster_slot": "Supplemental Roster",
           "roster_designation": null,
           "current_status": "Loan Player",
@@ -6574,7 +6532,7 @@
         }
       ],
       "international_slots": 8,
-      "gam_available": null
+      "gam_available": 4947077
     },
     {
       "id": "APk5LGOMOW",
@@ -7017,7 +6975,7 @@
         }
       ],
       "international_slots": 6,
-      "gam_available": null
+      "gam_available": 1646143
     },
     {
       "id": "vzqoOgNqap",
@@ -7474,7 +7432,7 @@
         }
       ],
       "international_slots": 6,
-      "gam_available": null
+      "gam_available": 51626
     },
     {
       "id": "19vQ2095K6",
@@ -7875,7 +7833,7 @@
         }
       ],
       "international_slots": 9,
-      "gam_available": null
+      "gam_available": 286754
     },
     {
       "id": "Vj58weDM8n",
@@ -8346,7 +8304,7 @@
         }
       ],
       "international_slots": 8,
-      "gam_available": null
+      "gam_available": 2422943
     },
     {
       "id": "a2lqRX2Mr0",
@@ -8845,7 +8803,7 @@
         }
       ],
       "international_slots": 12,
-      "gam_available": null
+      "gam_available": 159900
     },
     {
       "id": "jYQJ8EW5GR",
@@ -9260,7 +9218,7 @@
         }
       ],
       "international_slots": 7,
-      "gam_available": null
+      "gam_available": 622039
     },
     {
       "id": "9z5k7Yg5A3",
@@ -9731,7 +9689,7 @@
         }
       ],
       "international_slots": 6,
-      "gam_available": null
+      "gam_available": 1100612
     },
     {
       "id": "WBLMvYAQxe",
@@ -10118,7 +10076,7 @@
         }
       ],
       "international_slots": 9,
-      "gam_available": null
+      "gam_available": 0
     },
     {
       "id": "a2lqR4JMr0",
@@ -10588,20 +10546,6 @@
           "canadian_international_slot_exemption": null
         },
         {
-          "id": "Oa5wAK9WQ1",
-          "name": "Tyler Wolff",
-          "roster_slot": "Supplemental Roster",
-          "roster_designation": "Homegrown Player",
-          "current_status": null,
-          "contract_through": "2026",
-          "option_years": "2027, 2028",
-          "permanent_transfer_option": null,
-          "international_slot": false,
-          "convertible_with_tam": null,
-          "unavailable": false,
-          "canadian_international_slot_exemption": null
-        },
-        {
           "id": "gpMOL0G15z",
           "name": "Matthew Bell",
           "roster_slot": "Supplemental Spot 31",
@@ -10715,7 +10659,7 @@
         }
       ],
       "international_slots": 13,
-      "gam_available": null
+      "gam_available": 2118688
     },
     {
       "id": "zeQZBOzQKw",
@@ -11158,7 +11102,7 @@
         }
       ],
       "international_slots": 8,
-      "gam_available": null
+      "gam_available": 3424625
     },
     {
       "id": "0KPqjA456v",
@@ -11657,7 +11601,7 @@
         }
       ],
       "international_slots": 6,
-      "gam_available": null
+      "gam_available": 1448024
     },
     {
       "id": "jYQJ19EqGR",
@@ -12086,7 +12030,7 @@
         }
       ],
       "international_slots": 4,
-      "gam_available": null
+      "gam_available": 1146234
     },
     {
       "id": "wvq9B9wQWn",
@@ -12585,7 +12529,7 @@
         }
       ],
       "international_slots": 7,
-      "gam_available": null
+      "gam_available": 2435816
     },
     {
       "id": "kRQabn8MKZ",
@@ -13000,7 +12944,7 @@
         }
       ],
       "international_slots": 4,
-      "gam_available": null
+      "gam_available": 1332840
     },
     {
       "id": "lgpMOvnQzy",
@@ -13457,7 +13401,7 @@
         }
       ],
       "international_slots": 8,
-      "gam_available": null
+      "gam_available": 1648728
     }
   ]
 }
