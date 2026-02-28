@@ -1,3 +1,4 @@
+<!-- omit in toc -->
 # MLS Roster Profile Parser
 
 This library is used to parse an MLS roster profile PDF document ([example](./data/pdf/2025-05-01.pdf)),
@@ -12,13 +13,17 @@ Throughout, it produces warning messages when a) certain extracted values do not
 values and/or b) a player or team cannot be confidently mapped to an ID. These warnings represent portions of
 the output which may benefit from manual review.
 
+- [Installation](#installation)
+- [Usage](#usage)
+- [Development](#development)
+
 ## Installation
 
 ```bash
-pip install git+https://github.com/AmericanSoccerAnalysis/mls-roster-profiles.git
+pip install git+https://github.com/American-Soccer-Analysis/mls-roster-profiles.git
 ```
 
-## Sample Usage
+## Usage
 
 ```python
 from mls_roster_profiles import RosterProfileRelease
