@@ -110,7 +110,7 @@ class Team(BaseModel):
     Attributes:
         id_ (str | None): Unique identifier for the team.
         name (str): Full name of the team.
-        roster_construction_model (RosterConstructionModel | None): Roster construction model of the team, such as Designated Player Model or U22 Initiative Player Model.
+        roster_construction_model (RosterConstructionModel | str | None): Roster construction model of the team, such as Designated Player Model or U22 Initiative Player Model.
         players (list[Player]): List of players on the team.
         international_slots (int): Number of international slots presently available to the team.
         gam_available (int | None): Amount of this season's General Allocation Money (GAM) presently available to the team.
