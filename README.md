@@ -1,4 +1,5 @@
 <!-- omit in toc -->
+
 # MLS Roster Profile Parser
 
 This library is used to parse an MLS roster profile PDF document ([example](./data/pdf/2025-05-01.pdf)),
@@ -44,12 +45,16 @@ print(release.model_dump_json(indent=2))
         {
           "id": "raMyAywlMd",
           "name": "Miguel Almirón",
+          "entered_via_homegrown_contract": null,
           "roster_slot": "Senior Roster",
           "roster_designation": "Designated Player",
           "current_status": null,
           "contract_through": "2027",
-          "option_years": "2028",
-          "permanent_transfer_option": null,
+          "option_years": [
+            "2028"
+          ],
+          "permanent_transfer_option_years": null,
+          "loan_option_years": null,
           "international_slot": true,
           "convertible_with_tam": false,
           "unavailable": false,
@@ -59,12 +64,18 @@ print(release.model_dump_json(indent=2))
         {
           "id": "9vQ24ABe5K",
           "name": "Adyn Torres",
+          "entered_via_homegrown_contract": null,
           "roster_slot": "Supplemental Spot 31",
           "roster_designation": "Homegrown Player",
-          "current_status": "Unavailable - On Loan",
+          "current_status": [
+            "Unavailable - On Loan"
+          ],
           "contract_through": "2027",
-          "option_years": "2028",
-          "permanent_transfer_option": null,
+          "option_years": [
+            "2028"
+          ],
+          "permanent_transfer_option_years": null,
+          "loan_option_years": null,
           "international_slot": false,
           "convertible_with_tam": null,
           "unavailable": true,

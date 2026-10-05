@@ -47,16 +47,20 @@ large_table =
     large_table_thead?
     large_table_row+
 
-large_table_thead = table_header{5}
+large_table_thead = table_header{5,6}   # NOTE: "CONTRACT THRU" is occasionally split into two objects
 large_table_row =
     player_name_record{1,2}
+    homegrown_record?             # NOTE: Only relevant starting in Fall 2026
     roster_designation_record{0,2}
     current_status_record?
     contract_through_record?
     option_years_record{0,2}
 
-player_name_record = player_name attr_player_name
+player_name_record = !homegrown_record player_name attr_player_name
 attr_player_name = attr_open &"2" coordinates regular attr_close end_object
+
+homegrown_record = homegrown attr_regular
+homegrown = "HG"
 
 roster_designation_record = roster_designation attr_roster_designation
 roster_designation = character+
@@ -64,7 +68,7 @@ attr_roster_designation = attr_open &"3" coordinates regular attr_close end_obje
 
 current_status_record = current_status attr_current_status
 current_status = character+
-attr_current_status = attr_open digit+ separator &"5" digit+ separator digit+ separator regular attr_close end_object
+attr_current_status = attr_open digit+ separator (&"4" / &"5") digit+ separator digit+ separator regular attr_close end_object
 
 contract_through_record = contract_through attr_contract_through
 contract_through = character+

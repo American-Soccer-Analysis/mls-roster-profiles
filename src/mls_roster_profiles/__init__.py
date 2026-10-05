@@ -79,6 +79,26 @@ class RosterProfileRelease(BaseModel):
         return re.sub(rf"-{DelimiterGlyph.ATTRIBUTES_OPEN}.*{DelimiterGlyph.ATTRIBUTES_CLOSE}\n", "", text)
 
     @staticmethod
+    def _unset_absent_homegrown_tags(teams: list[Team]) -> list[Team]:
+        """
+        Sets `entered_via_homegrown_contract` to None for every player when no 'HG' tags
+        appear anywhere in the release, as releases prior to September 2026 do not note
+        them.
+
+        Args:
+            teams (list[Team]): The list of teams in the release.
+
+        Returns:
+            list[Team]: The updated list of teams.
+
+        """
+        players = [player for team in teams for player in team.players]
+        if not any(player.entered_via_homegrown_contract for player in players):
+            for player in players:
+                player.entered_via_homegrown_contract = None
+        return teams
+
+    @staticmethod
     def _itscalledsoccer_teams(client: AmericanSoccerAnalysis) -> list[dict[str, str]]:
         """
         Fetches Major League Soccer teams from `itscalledsoccer`.
@@ -209,7 +229,9 @@ class RosterProfileRelease(BaseModel):
             team_name (str | None): The name of the team to which the player belongs, where applicable.
 
         Returns:
-            Team | Player: The updated entity with the mapped ID, or the original entity if no match is found.
+            Team | Player: The updated entity with the mapped ID, or the original entity if no match is found. Team names
+                are replaced with their `itscalledsoccer` equivalents, whereas player names always retain their roster
+                profile spelling.
 
         """
         if isinstance(entity, Team):
@@ -235,7 +257,8 @@ class RosterProfileRelease(BaseModel):
         ):
             idx = matches[0][2]
             entity.id_ = choices[idx]["ID"]
-            entity.name = choices[idx]["Name"]
+            if entity_type == "team":
+                entity.name = choices[idx]["Name"]
             return entity
 
         elif len(matches) > 1:
@@ -247,7 +270,8 @@ class RosterProfileRelease(BaseModel):
                 )
                 if labeled:
                     entity.id_ = labeled["ID"]
-                    entity.name = labeled["Name"]
+                    if entity_type == "team":
+                        entity.name = labeled["Name"]
                     return entity
 
         logger.warning(f"No mapping identified for {entity_type} '{entity.name}'")
@@ -348,5 +372,6 @@ class RosterProfileRelease(BaseModel):
             else:
                 logger.info(f"[Page {idx + 1} of {len(pdf.pages)}] Skipped non-roster profile page")
 
+        teams = cls._unset_absent_homegrown_tags(teams)
         teams = cls._map_ids(teams)
         return cls(release_date=release_date, teams=teams)
