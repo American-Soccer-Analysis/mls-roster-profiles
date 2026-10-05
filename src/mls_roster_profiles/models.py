@@ -2,7 +2,6 @@ import datetime
 import re
 from typing import Annotated
 
-from loguru import logger
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
 from mls_roster_profiles.enum import CurrentStatus, RosterConstructionModel, RosterDesignation, RosterSlot
@@ -15,12 +14,14 @@ class Player(BaseModel):
     Attributes:
         id_ (str | None): Unique identifier for the player.
         name (str): Full name of the player.
+        entered_via_homegrown_contract (bool | None): Indicates whether the player entered MLS via a Homegrown contract, denoted by an 'HG' tag beneath the player's name. Set to None for releases which do not note this (i.e., prior to September 2026).
         roster_slot (RosterSlot): Roster slot of the player, such as 'Senior Roster' or 'Supplemental Roster.'
-        roster_designation (RosterDesignation | str | None): Roster designation of the player, such as 'Designated Player' or 'Homegrown Player.'
-        current_status (CurrentStatus | str | None): Current status of the player, such as 'Unavailable - On Loan' or 'Unavailable - Injured List.'
+        roster_designation (RosterDesignation | None): Roster designation of the player, such as 'Designated Player' or 'Homegrown Player.'
+        current_status (list[CurrentStatus] | None): Current status(es) of the player, such as 'Unavailable - On Loan' or 'Unavailable - Injured List.'
         contract_through (str | None): Contract end date for the player. Most often a year (e.g., '2025'), but can also be a month (e.g., 'July 2025').
-        option_years (str | None): List of option years for the player's contract. Most often a year (e.g., '2025'), but can also be a month (e.g., 'July 2025').
-        permanent_transfer_option (bool | None): Indicates whether the loan player's contract has a permanent transfer option. Set to None if the player is not on loan.
+        option_years (list[str] | None): Contract option years for the player. Most often a year (e.g., '2025') or season (e.g., '2027-28'), but can also be a month (e.g., 'June 2027').
+        permanent_transfer_option_years (list[str] | None): Year(s) through which the club may execute a permanent transfer option for the player, who is on loan. Set to None if there is no such option.
+        loan_option_years (list[str] | None): Year(s) denoted by 'LO' in the roster profile, presumably the year(s) through which the club holds an option to extend the player's loan. Set to None if not denoted.
         international_slot (bool): Indicates whether the player occupies an international slot on the roster.
         convertible_with_tam (bool | None): Indicates whether the player can be converted to a non-Designated Player with Targeted Allocation Money (TAM). Set to None if the player is not a Designated Player.
         unavailable (bool): Indicates whether the player is unavailable for selection due to injury, loan, or other reasons.
@@ -39,29 +40,37 @@ class Player(BaseModel):
         default=...,
         description="Full name of the player.",
     )
+    entered_via_homegrown_contract: bool | None = Field(
+        default=None,
+        description="Indicates whether the player entered MLS via a Homegrown contract, denoted by an 'HG' tag beneath the player's name. Set to None for releases which do not note this (i.e., prior to September 2026).",
+    )
     roster_slot: RosterSlot = Field(
         default=...,
         description="Roster slot of the player, such as 'Senior Roster' or 'Supplemental Roster.'",
     )
-    roster_designation: RosterDesignation | str | None = Field(
+    roster_designation: RosterDesignation | None = Field(
         default=None,
         description="Roster designation of the player, such as 'Designated Player' or 'Homegrown Player.'",
     )
-    current_status: CurrentStatus | str | None = Field(
+    current_status: list[CurrentStatus] | None = Field(
         default=None,
-        description="Current status of the player, such as 'Unavailable - On Loan' or 'Unavailable - Injured List.'",
+        description="Current status(es) of the player, such as 'Unavailable - On Loan' or 'Unavailable - Injured List.'",
     )
     contract_through: Annotated[str, StringConstraints(strip_whitespace=True)] | None = Field(
         default=None,
         description="Contract end date for the player. Most often a year (e.g., '2025'), but can also be a month (e.g., 'July 2025').",
     )
-    option_years: Annotated[str, StringConstraints(strip_whitespace=True)] | None = Field(
+    option_years: list[Annotated[str, StringConstraints(strip_whitespace=True)]] | None = Field(
         default=None,
-        description="List of option years for the player's contract. Most often a year (e.g., '2025'), but can also be a month (e.g., 'July 2025').",
+        description="Contract option years for the player. Most often a year (e.g., '2025') or season (e.g., '2027-28'), but can also be a month (e.g., 'June 2027').",
     )
-    permanent_transfer_option: bool | None = Field(
+    permanent_transfer_option_years: list[Annotated[str, StringConstraints(strip_whitespace=True)]] | None = Field(
         default=None,
-        description="Indicates whether the loan player's contract has a permanent transfer option. Set to None if the player is not on loan.",
+        description="Year(s) through which the club may execute a permanent transfer option for the player, who is on loan. Set to None if there is no such option.",
+    )
+    loan_option_years: list[Annotated[str, StringConstraints(strip_whitespace=True)]] | None = Field(
+        default=None,
+        description="Year(s) denoted by 'LO' in the roster profile, presumably the year(s) through which the club holds an option to extend the player's loan. Set to None if not denoted.",
     )
     international_slot: bool = Field(
         default=False,
@@ -80,27 +89,12 @@ class Player(BaseModel):
         description="Indicates whether the player does not count toward an international roster slot. Each Canadian club may designate up to three players. Set to None if the player is not contracted to a Canadian team.",
     )
 
-    @field_validator("roster_designation", mode="before")
-    @classmethod
-    def validate_roster_designation(cls, value: str | None) -> RosterDesignation | str | None:
-        if value:
-            try:
-                return RosterDesignation(value)
-            except ValueError:
-                logger.warning(f"Unrecognized roster designation: '{value}'. Returning as string.")
-                return value
-        return None
-
     @field_validator("current_status", mode="before")
     @classmethod
-    def validate_current_status(cls, value: str | None) -> CurrentStatus | None:
-        if value:
-            try:
-                return CurrentStatus(value)
-            except ValueError:
-                logger.warning(f"Unrecognized current status: '{value}'. Returning as string.")
-                return value
-        return None
+    def validate_current_status(cls, value: str | list[str] | None) -> list[str] | None:
+        if isinstance(value, str):
+            value = [_value.strip() for _value in re.split(r"[;,]", value) if _value.strip()]
+        return value or None
 
 
 class Team(BaseModel):
@@ -110,7 +104,7 @@ class Team(BaseModel):
     Attributes:
         id_ (str | None): Unique identifier for the team.
         name (str): Full name of the team.
-        roster_construction_model (RosterConstructionModel | str | None): Roster construction model of the team, such as Designated Player Model or U22 Initiative Player Model.
+        roster_construction_model (RosterConstructionModel | None): Roster construction model of the team, such as Designated Player Model or U22 Initiative Player Model.
         players (list[Player]): List of players on the team.
         international_slots (int): Number of international slots presently available to the team.
         gam_available (int | None): Amount of this season's General Allocation Money (GAM) presently available to the team.
@@ -128,7 +122,7 @@ class Team(BaseModel):
         default=...,
         description="Full name of the team.",
     )
-    roster_construction_model: RosterConstructionModel | str | None = Field(
+    roster_construction_model: RosterConstructionModel | None = Field(
         default=None,
         description="Roster construction model of the team, such as Designated Player Model or U22 Initiative Player Model.",
     )
@@ -144,17 +138,6 @@ class Team(BaseModel):
         default=None,
         description="Amount of this season's General Allocation Money (GAM) presently available to the team.",
     )
-
-    @field_validator("roster_construction_model", mode="before")
-    @classmethod
-    def validate_roster_construction_model(cls, value: str | None) -> RosterConstructionModel | str | None:
-        if value:
-            try:
-                return RosterConstructionModel(value)
-            except ValueError:
-                logger.warning(f"Unrecognized roster construction model: '{value}'. Returning as string.")
-                return value
-        return None
 
 
 class TableTitleMixin(BaseModel):
@@ -182,10 +165,38 @@ class LargeTableRow(BaseModel):
     contract details, etc."""
 
     player_name: str
+    homegrown: str | None = None
     roster_designation: str | None = None
     current_status: str | None = None
     contract_through: str | None = None
     option_years: str | None = None
+
+    def split_option_years(self) -> dict[str, list[str] | None]:
+        """
+        Splits the raw option years into contract option years, permanent transfer
+        option years, and loan option years.
+
+        Segments are separated by semicolons and may be prefixed with 'PT:' (permanent transfer option) or
+        'LO:' (loan option), with years separated by commas within each segment. Unprefixed segments are
+        contract option years. For example, 'LO: 2026; PT: 2028; 2029, 2030' yields loan option years of
+        ['2026'], permanent transfer option years of ['2028'], and contract option years of ['2029', '2030'].
+
+        Returns:
+            dict[str, list[str] | None]: The option years, keyed by the corresponding `Player` attribute.
+
+        """
+        option_years = {"option_years": [], "permanent_transfer_option_years": [], "loan_option_years": []}
+        prefixes = {"PT": "permanent_transfer_option_years", "LO": "loan_option_years"}
+
+        for segment in str(self.option_years or "").split(";"):
+            key = "option_years"
+            match = re.match(r"\s*(PT|LO)\s*:", segment)
+            if match:
+                key = prefixes[match.group(1)]
+                segment = segment[match.end() :]
+            option_years[key].extend(year.strip() for year in segment.split(",") if year.strip())
+
+        return {key: years or None for key, years in option_years.items()}
 
 
 class LargeTable(TableTitleMixin):
@@ -298,11 +309,6 @@ class RosterProfile(BaseModel):
         player = self._enrich_from_international_slots(player)
         player = self._enrich_from_designated_players(player)
         player = self._enrich_from_unavailable_players(player)
-
-        player.permanent_transfer_option = (
-            player.permanent_transfer_option if player.current_status == CurrentStatus.LOAN_PLAYER else None
-        )
-
         return player
 
     def _get_players(self) -> list[Player]:
@@ -317,15 +323,14 @@ class RosterProfile(BaseModel):
         players = []
         for table in self.large_tables:
             for row in table.rows:
-                permanent_transfer_option = str(row.option_years).startswith("PT")
                 player = Player(
                     name=row.player_name,
+                    entered_via_homegrown_contract=row.homegrown is not None,
                     roster_slot=table.title,
                     roster_designation=row.roster_designation,
                     current_status=row.current_status,
                     contract_through=row.contract_through,
-                    option_years=row.option_years,
-                    permanent_transfer_option=permanent_transfer_option,
+                    **row.split_option_years(),
                 )
                 player = self._enrich_player(player)
                 players.append(player)
